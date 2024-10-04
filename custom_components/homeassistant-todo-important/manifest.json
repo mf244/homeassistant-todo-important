@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "documentation": "https://github.com/mf244/homeassistant-todo-important",
   "requirements": [
-    "requests"
+      "requests"
   ],
   "dependencies": [],
   "codeowners": ["@mf244"],
