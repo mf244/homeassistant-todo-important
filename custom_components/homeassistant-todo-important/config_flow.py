@@ -15,10 +15,12 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
         if user_input is not None:
+            # Store the client_id and client_secret for later use
             self.client_id = user_input[CONF_CLIENT_ID]
             self.client_secret = user_input[CONF_CLIENT_SECRET]
             return await self.async_step_auth()
 
+        # Initial form to ask for client_id and client_secret
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
@@ -30,10 +32,15 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_auth(self, user_input=None):
         """Handle the authentication step."""
         if user_input is not None:
+            # Extract the authorization code from the returned URL
             returned_url = user_input[CONF_RETURNED_URL]
             auth_code = self.extract_auth_code(returned_url)
+            
+            # Exchange the authorization code for access and refresh tokens
             tokens = await self.exchange_code_for_token(auth_code)
+            
             if tokens:
+                # Create the config entry with the tokens and credentials
                 return self.async_create_entry(
                     title="Microsoft To Do",
                     data={
@@ -43,15 +50,21 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_REFRESH_TOKEN: tokens["refresh_token"]
                     }
                 )
+        
+        # Generate the authorization URL
+        auth_url = (
+            f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
+            f"?client_id={self.client_id}&response_type=code"
+            f"&redirect_uri={DEFAULT_REDIRECT_URI}&response_mode=query"
+            f"&scope=Tasks.ReadWrite offline_access"
+        )
 
-        # Show the link to start authentication and ask for the returned URL
+        # Provide the link to the user and ask for the returned URL
         return self.async_show_form(
             step_id="auth",
-            description_placeholders={
-                "auth_url": f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id={self.client_id}&response_type=code&redirect_uri={DEFAULT_REDIRECT_URI}&response_mode=query&scope=Tasks.ReadWrite offline_access"
-            },
+            description_placeholders={"auth_url": auth_url},  # Pass the auth URL to be shown
             data_schema=vol.Schema({
-                vol.Required(CONF_RETURNED_URL): str
+                vol.Required(CONF_RETURNED_URL): str  # Field where the user pastes the returned URL
             })
         )
 
@@ -73,9 +86,11 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             "client_secret": self.client_secret
         }
 
+        # Make the request to exchange the authorization code for tokens
         response = await self.hass.async_add_executor_job(
             requests.post, token_url, data
         )
+        
         if response.status_code == 200:
             return response.json()
         else:
