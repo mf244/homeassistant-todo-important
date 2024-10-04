@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Microsoft To Do Integration",
+        "title": "Microsoft To Do Integration (2)",
         "description": "Set up the Microsoft To Do integration by providing your Microsoft Azure credentials.",
         "data": {
           "client_id": "Client ID",
@@ -11,7 +11,7 @@
       },
       "auth": {
         "title": "Authenticate Microsoft To Do",
-        "description": "Please click the following link to authenticate your Microsoft account: [Authorize Here]({auth_url}). After authenticating, copy the URL from the browser's address bar and paste it into the field below.",
+        "description": "You will be prompted to authenticate using the link provided.",
         "data": {
           "returned_url": "Returned URL"
         }
