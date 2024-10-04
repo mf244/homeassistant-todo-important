@@ -24,7 +24,8 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({
                 vol.Required(CONF_CLIENT_ID): str,
                 vol.Required(CONF_CLIENT_SECRET): str
-            })
+            }),
+            description="Enter your Client ID and Client Secret"
         )
 
     async def async_step_auth(self, user_input=None):
@@ -53,16 +54,16 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             f"&scope=Tasks.ReadWrite offline_access"
         )
 
-        # Log the generated authorization URL for debugging purposes
+        # Log the generated authorization URL
         _LOGGER.info(f"Authorization URL: {auth_url}")
 
-        # Provide the link directly in the description
+        # Inform the user to check the logs for the URL
         return self.async_show_form(
             step_id="auth",
             data_schema=vol.Schema({
                 vol.Required(CONF_RETURNED_URL): str  # Field where the user pastes the returned URL
             }),
-            description_placeholders={"auth_url": auth_url},  # Correctly pass the auth_url
+            description="Go to the Home Assistant logs to find the authorization URL, open it in a browser, and paste the resulting URL here."
         )
 
     def extract_auth_code(self, returned_url):
