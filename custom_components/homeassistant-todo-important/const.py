@@ -1,4 +1,4 @@
-DOMAIN = "homeassistant-todo-important"
+DOMAIN = "homeassistant_todo_important"
 
 CONF_CLIENT_ID = "client_id"
 CONF_CLIENT_SECRET = "client_secret"

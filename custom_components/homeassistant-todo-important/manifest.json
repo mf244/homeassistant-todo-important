@@ -1,5 +1,5 @@
 {
-    "domain": "homeassistant-todo-important",
+    "domain": "homeassistant_todo_important",
     "name": "Microsoft To Do Important Tasks",
     "version": "1.0.0",
     "documentation": "https://github.com/mf244/homeassistant-todo-important",
