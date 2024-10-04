@@ -18,12 +18,15 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.client_secret = user_input[CONF_CLIENT_SECRET]
             return await self.async_step_auth()
 
+        # Show form to ask for client_id and client_secret
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
                 vol.Required(CONF_CLIENT_ID): str,
                 vol.Required(CONF_CLIENT_SECRET): str
-            })
+            }),
+            errors=None,
+            description="Set up the Microsoft To Do integration by providing your Microsoft Azure credentials."
         )
 
     async def async_step_auth(self, user_input=None):
@@ -33,6 +36,7 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             auth_code = self.extract_auth_code(returned_url)
             tokens = await self.exchange_code_for_token(auth_code)
             if tokens:
+                # Create config entry with tokens and credentials
                 return self.async_create_entry(
                     title="Microsoft To Do",
                     data={
@@ -57,10 +61,11 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Provide the link directly in the description
         return self.async_show_form(
             step_id="auth",
-            description=f"Please click the following link to authenticate your Microsoft account: [Authorize Here]({auth_url}). After authenticating, copy the URL from the browser's address bar and paste it into the field below.",
             data_schema=vol.Schema({
                 vol.Required(CONF_RETURNED_URL): str  # Field where the user pastes the returned URL
-            })
+            }),
+            errors=None,
+            description=f"Please click the following link to authenticate your Microsoft account: [Authorize Here]({auth_url}). After authenticating, copy the URL from the browser's address bar and paste it into the field below."
         )
 
     def extract_auth_code(self, returned_url):
