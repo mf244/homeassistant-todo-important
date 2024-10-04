@@ -13,6 +13,7 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step to get client credentials."""
+        errors = None
         if user_input is not None:
             self.client_id = user_input[CONF_CLIENT_ID]
             self.client_secret = user_input[CONF_CLIENT_SECRET]
@@ -25,11 +26,13 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_CLIENT_ID): str,
                 vol.Required(CONF_CLIENT_SECRET): str
             }),
-            description="Enter your Client ID and Client Secret"
+            errors=errors,
+            description="Enter your Microsoft Azure Client ID and Client Secret."
         )
 
     async def async_step_auth(self, user_input=None):
         """Handle the authentication step and provide the URL for authentication."""
+        errors = None
         if user_input is not None:
             returned_url = user_input[CONF_RETURNED_URL]
             auth_code = self.extract_auth_code(returned_url)
@@ -45,6 +48,8 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_REFRESH_TOKEN: tokens["refresh_token"]
                     }
                 )
+            else:
+                errors = {"base": "auth_failed"}
 
         # Generate the authorization URL
         auth_url = (
@@ -57,13 +62,14 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Log the generated authorization URL
         _LOGGER.info(f"Authorization URL: {auth_url}")
 
-        # Inform the user to check the logs for the URL
+        # Provide the link to the user and ask for the returned URL after authentication
         return self.async_show_form(
             step_id="auth",
             data_schema=vol.Schema({
                 vol.Required(CONF_RETURNED_URL): str  # Field where the user pastes the returned URL
             }),
-            description="Go to the Home Assistant logs to find the authorization URL, open it in a browser, and paste the resulting URL here."
+            description="Go to the Home Assistant logs to find the authorization URL, open it in a browser, and paste the resulting URL here.",
+            errors=errors,
         )
 
     def extract_auth_code(self, returned_url):
@@ -84,7 +90,7 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             "client_secret": self.client_secret
         }
 
-        # Make the request to exchange authorization code for tokens
+        # Make the request to exchange the authorization code for tokens
         response = await self.hass.async_add_executor_job(
             requests.post, token_url, data
         )
