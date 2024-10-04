@@ -56,13 +56,13 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Log the generated authorization URL for debugging purposes
         _LOGGER.info(f"Authorization URL: {auth_url}")
 
-        # Provide the link via description placeholders
+        # Provide the link directly in the description
         return self.async_show_form(
             step_id="auth",
-            description_placeholders={"auth_url": auth_url},  # Correctly pass the auth_url
             data_schema=vol.Schema({
                 vol.Required(CONF_RETURNED_URL): str  # Field where the user pastes the returned URL
-            })
+            }),
+            description_placeholders={"auth_url": auth_url},  # Correctly pass the auth_url
         )
 
     def extract_auth_code(self, returned_url):
