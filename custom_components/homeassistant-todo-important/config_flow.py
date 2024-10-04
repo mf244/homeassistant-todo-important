@@ -13,7 +13,7 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     async def async_step_user(self, user_input=None):
-        """Handle the initial step."""
+        """Handle the initial step to get client credentials."""
         if user_input is not None:
             # Store the client_id and client_secret for later use
             self.client_id = user_input[CONF_CLIENT_ID]
@@ -30,17 +30,13 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_auth(self, user_input=None):
-        """Handle the authentication step."""
+        """Handle the authentication step and provide the URL for authentication."""
         if user_input is not None:
-            # Extract the authorization code from the returned URL
             returned_url = user_input[CONF_RETURNED_URL]
             auth_code = self.extract_auth_code(returned_url)
-            
-            # Exchange the authorization code for access and refresh tokens
             tokens = await self.exchange_code_for_token(auth_code)
-            
             if tokens:
-                # Create the config entry with the tokens and credentials
+                # Create a config entry with the tokens and credentials
                 return self.async_create_entry(
                     title="Microsoft To Do",
                     data={
@@ -50,7 +46,7 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         CONF_REFRESH_TOKEN: tokens["refresh_token"]
                     }
                 )
-        
+
         # Generate the authorization URL
         auth_url = (
             f"https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
@@ -59,10 +55,13 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             f"&scope=Tasks.ReadWrite offline_access"
         )
 
+        # Log the authorization URL for debugging purposes
+        _LOGGER.info(f"Authorization URL: {auth_url}")
+
         # Provide the link to the user and ask for the returned URL
         return self.async_show_form(
             step_id="auth",
-            description_placeholders={"auth_url": auth_url},  # Pass the auth URL to be shown
+            description_placeholders={"auth_url": auth_url},  # Pass the auth_url to be shown
             data_schema=vol.Schema({
                 vol.Required(CONF_RETURNED_URL): str  # Field where the user pastes the returned URL
             })
