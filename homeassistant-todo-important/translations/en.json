@@ -1,0 +1,22 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "title": "Microsoft To Do Integration",
+          "description": "Set up the Microsoft To Do integration by providing the client ID and secret.",
+          "data": {
+            "client_id": "Client ID",
+            "client_secret": "Client Secret"
+          }
+        },
+        "auth": {
+          "title": "Authenticate Microsoft To Do",
+          "description": "Please authenticate by logging into your Microsoft account and pasting the returned URL here.",
+          "data": {
+            "returned_url": "Returned URL"
+          }
+        }
+      }
+    }
+  }
+  

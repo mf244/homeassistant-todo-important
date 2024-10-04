@@ -1,0 +1,12 @@
+{
+    "title": "Microsoft To Do Integration",
+    "step": {
+      "user": {
+        "description": "To start, provide your Microsoft To Do API credentials."
+      },
+      "auth": {
+        "description": "Now, authenticate with Microsoft using the link below."
+      }
+    }
+  }
+  

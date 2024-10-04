@@ -1,0 +1,14 @@
+{
+    "domain": "homeassistant-todo-important",
+    "name": "Microsoft To Do Important Tasks",
+    "version": "1.0.0",
+    "documentation": "https://github.com/mf244/homeassistant-todo-important",
+    "requirements": [
+      "requests"
+    ],
+    "dependencies": [],
+    "codeowners": ["@mf244"],
+    "config_flow": true,
+    "iot_class": "cloud_polling"
+  }
+  
