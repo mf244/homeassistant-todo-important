@@ -24,9 +24,7 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({
                 vol.Required(CONF_CLIENT_ID): str,
                 vol.Required(CONF_CLIENT_SECRET): str
-            }),
-            errors=None,
-            description="Set up the Microsoft To Do integration by providing your Microsoft Azure credentials."
+            })
         )
 
     async def async_step_auth(self, user_input=None):
@@ -58,14 +56,13 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Log the generated authorization URL for debugging purposes
         _LOGGER.info(f"Authorization URL: {auth_url}")
 
-        # Provide the link directly in the description
+        # Provide the link via description placeholders
         return self.async_show_form(
             step_id="auth",
+            description_placeholders={"auth_url": auth_url},  # Correctly pass the auth_url
             data_schema=vol.Schema({
                 vol.Required(CONF_RETURNED_URL): str  # Field where the user pastes the returned URL
-            }),
-            errors=None,
-            description=f"Please click the following link to authenticate your Microsoft account: [Authorize Here]({auth_url}). After authenticating, copy the URL from the browser's address bar and paste it into the field below."
+            })
         )
 
     def extract_auth_code(self, returned_url):
@@ -86,7 +83,7 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             "client_secret": self.client_secret
         }
 
-        # Make the request to exchange the authorization code for tokens
+        # Make the request to exchange authorization code for tokens
         response = await self.hass.async_add_executor_job(
             requests.post, token_url, data
         )
