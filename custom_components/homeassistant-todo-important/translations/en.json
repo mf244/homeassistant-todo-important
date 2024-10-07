@@ -1,0 +1,40 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "title": "Microsoft To Do Setup",
+          "description": "Please enter your Microsoft Azure Client ID and Client Secret to proceed.",
+          "data": {
+            "client_id": "Client ID",
+            "client_secret": "Client Secret"
+          }
+        },
+        "auth": {
+          "title": "Authenticate Microsoft To Do",
+          "description": "Follow the link to authenticate your Microsoft account. Then paste the returned URL here.",
+          "data": {
+            "returned_url": "Returned URL"
+          }
+        }
+      },
+      "error": {
+        "auth_failed": "Authentication failed. Please check your credentials and try again.",
+        "invalid_code": "The authorization code is invalid. Please try again."
+      },
+      "abort": {
+        "already_configured": "This account is already configured."
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "title": "Microsoft To Do Options",
+          "description": "Configure the polling interval and other options for this integration.",
+          "data": {
+            "polling_interval": "Polling Interval (minutes)"
+          }
+        }
+      }
+    }
+  }
+  
