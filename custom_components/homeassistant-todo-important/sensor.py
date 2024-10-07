@@ -1,5 +1,5 @@
-import requests
 import logging
+import requests
 from datetime import timedelta
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import Throttle
@@ -60,7 +60,7 @@ class MicrosoftToDoData:
         headers = {"Authorization": f"Bearer {self.access_token}"}
         url = "https://graph.microsoft.com/v1.0/me/todo/lists"
 
-        response = await self.hass.async_add_executor_job(requests.get, url, headers)
+        response = await self.hass.async_add_executor_job(requests.get, url, headers=headers)
         if response.status_code == 200:
             task_lists = response.json().get("value", [])
             important_tasks = []
@@ -79,32 +79,3 @@ class MicrosoftToDoData:
             self.important_tasks = "\n".join(important_tasks) if important_tasks else "No important tasks found"
         else:
             _LOGGER.error(f"Error fetching tasks: {response.status_code} - {response.text}")
-
-    async def refresh_access_token(self):
-        """Refresh the access token using the refresh token."""
-        token_url = "https://login.microsoftonline.com/common/oauth2/v2.0/token"
-        data = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
-            "grant_type": "refresh_token",
-            "refresh_token": self.refresh_token,
-            "scope": "Tasks.ReadWrite offline_access"
-        }
-
-        response = await self.hass.async_add_executor_job(requests.post, token_url, data)
-        if response.status_code == 200:
-            tokens = response.json()
-            self.access_token = tokens["access_token"]
-            self.refresh_token = tokens["refresh_token"]
-
-            self.hass.config_entries.async_update_entry(
-                entry=self.hass.config_entries.async_entries(DOMAIN)[0],
-                data={
-                    CONF_CLIENT_ID: self.client_id,
-                    CONF_CLIENT_SECRET: self.client_secret,
-                    CONF_ACCESS_TOKEN: self.access_token,
-                    CONF_REFRESH_TOKEN: self.refresh_token,
-                }
-            )
-        else:
-            _LOGGER.error(f"Error refreshing token: {response.status_code} - {response.text}")
