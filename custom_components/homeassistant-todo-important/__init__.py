@@ -1,16 +1,20 @@
-async def async_setup_entry(hass, config_entry):
-    """Set up Microsoft To Do from a config entry."""
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][config_entry.entry_id] = config_entry.data
+import logging
+from homeassistant.helpers import discovery
+from .const import DOMAIN
 
-    # Set up the sensor platform
+_LOGGER = logging.getLogger(__name__)
+
+async def async_setup(hass, config):
+    """Set up the Microsoft To Do integration from YAML configuration."""
+    if DOMAIN not in config:
+        return True
+
+    conf = config[DOMAIN]
+    hass.data[DOMAIN] = conf
+
+    # Set up the sensor platform using discovery
     hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(config_entry, "sensor")
+        discovery.async_load_platform(hass, 'sensor', DOMAIN, {}, conf)
     )
-    return True
 
-async def async_unload_entry(hass, config_entry):
-    """Unload a config entry."""
-    await hass.config_entries.async_forward_entry_unload(config_entry, "sensor")
-    hass.data[DOMAIN].pop(config_entry.entry_id)
     return True
