@@ -8,5 +8,6 @@
   ],
   "dependencies": [],
   "codeowners": ["@mf244"],
+  "config_flow": false,
   "iot_class": "cloud_polling"
 }
