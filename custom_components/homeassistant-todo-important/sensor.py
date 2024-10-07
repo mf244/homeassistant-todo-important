@@ -60,7 +60,8 @@ class MicrosoftToDoData:
         headers = {"Authorization": f"Bearer {self.access_token}"}
         url = "https://graph.microsoft.com/v1.0/me/todo/lists"
 
-        response = await self.hass.async_add_executor_job(requests.get, url, headers=headers)
+        # Correct the async_add_executor_job call to pass arguments directly
+        response = await self.hass.async_add_executor_job(requests.get, url, headers)
         if response.status_code == 200:
             task_lists = response.json().get("value", [])
             important_tasks = []
