@@ -1,11 +1,11 @@
 {
   "domain": "homeassistant_todo_important",
   "name": "Microsoft To Do Important Tasks",
-  "version": "0.0.3",
-  "documentation": "https://github.com/mf244/homeassistant-todo-important",
-  "requirements": ["requests"],
+  "version": "0.0.2",
+  "documentation": "https://github.com/your_repo/homeassistant-todo-important",
+  "requirements": ["O365"],
   "dependencies": [],
-  "codeowners": ["@mf244"],
+  "codeowners": ["@your_username"],
   "config_flow": true,
   "iot_class": "cloud_polling",
   "oauth2_providers": [
@@ -16,7 +16,7 @@
       "client_secret": "<your_client_secret>",
       "auth_uri": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
       "token_uri": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
-      "redirect_uri": "https://<home_assistant_url>/auth/external/callback"
+      "redirect_uri": "https://<your_homeassistant_url>/auth/external/callback"
     }
   ]
 }

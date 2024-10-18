@@ -3,31 +3,24 @@
   "config": {
     "step": {
       "user": {
-        "title": "Microsoft To Do Setup",
+        "title": "Set up Microsoft To Do",
         "description": "Please enter your Microsoft Azure Client ID and Client Secret to proceed.",
         "data": {
           "client_id": "Client ID",
           "client_secret": "Client Secret"
         }
       },
-      "auth": {
-        "title": "Authenticate Microsoft To Do",
-        "description": "Click the link below to authenticate with your Microsoft account and return here to complete the setup."
-      },
-      "reauth": {
-        "title": "Reauthenticate Microsoft To Do",
-        "description": "Your authentication has expired. Please reauthenticate to continue."
-      },
-      "repair": {
-        "title": "Repair Microsoft To Do Authentication",
-        "description": "Click the link below to re-authenticate your Microsoft account and return here to complete the repair process."
+      "request": {
+        "title": "Authorize Microsoft To Do",
+        "description": "Click the link below to authorize with Microsoft. After authorization, paste the resulting URL here.",
+        "data": {
+          "url": "Returned URL"
+        }
       }
     },
     "error": {
-      "auth_failed": "Authentication failed. Please check your credentials and try again."
-    },
-    "abort": {
-      "already_configured": "This account is already configured."
+      "invalid_url": "The URL is invalid.",
+      "token_error": "Token exchange failed. Check the logs for more details."
     }
   }
 }
