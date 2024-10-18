@@ -17,6 +17,10 @@
       "reauth": {
         "title": "Reauthenticate Microsoft To Do",
         "description": "Your authentication has expired. Please reauthenticate to continue."
+      },
+      "repair": {
+        "title": "Repair Microsoft To Do Authentication",
+        "description": "Click the link below to re-authenticate your Microsoft account and return here to complete the repair process."
       }
     },
     "error": {

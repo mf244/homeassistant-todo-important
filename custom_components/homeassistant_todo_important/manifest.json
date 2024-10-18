@@ -1,7 +1,7 @@
 {
   "domain": "homeassistant_todo_important",
   "name": "Microsoft To Do Important Tasks",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "documentation": "https://github.com/mf244/homeassistant-todo-important",
   "requirements": ["requests"],
   "dependencies": [],
@@ -11,6 +11,7 @@
   "oauth2_providers": [
     {
       "name": "Microsoft",
+      "type": "oauth2",
       "client_id": "<your_client_id>",
       "client_secret": "<your_client_secret>",
       "auth_uri": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
