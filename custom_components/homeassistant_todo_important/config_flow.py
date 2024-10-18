@@ -1,24 +1,13 @@
 import logging
 import functools as ft
-import json
-from typing import Any
-from collections.abc import Mapping
-
-import homeassistant.helpers.config_validation as cv
-import voluptuous as vol
-from aiohttp import web_response
-from homeassistant import config_entries, data_entry_flow
+from homeassistant import config_entries
 from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import callback
+from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers.network import get_url
-from homeassistant.config_entries import ConfigFlow
-from homeassistant.helpers import issue_registry as ir
-from O365 import Account, FileSystemTokenBackend
+import voluptuous as vol
 
-from .const import (
-    DOMAIN, CONF_CLIENT_ID, CONF_CLIENT_SECRET, CONF_URL, AUTH_CALLBACK_PATH,
-    AUTH_CALLBACK_NAME, CONST_UTC_TIMEZONE
-)
+from .const import DOMAIN, CONF_CLIENT_ID, CONF_CLIENT_SECRET, CONF_URL, AUTH_CALLBACK_PATH, AUTH_CALLBACK_NAME
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,41 +18,36 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self):
         """Initialize the config flow."""
-        self._account = None
-        self._state = None
-        self._callback_url = None
-        self._url = None
-        self._user_input = None
         self._client_id = None
         self._client_secret = None
+        self._state = None
+        self._callback_url = None
+        self._auth_url = None
 
     async def async_step_user(self, user_input=None):
-        """Handle the initial step."""
+        """Handle the initial step for user setup."""
         errors = {}
 
         if user_input is not None:
             self._client_id = user_input[CONF_CLIENT_ID]
             self._client_secret = user_input[CONF_CLIENT_SECRET]
             
-            # Initialize OAuth2 authentication
+            # Prepare OAuth2 authorization flow
             credentials = (self._client_id, self._client_secret)
+            redirect_uri = get_callback_url(self.hass)
             token_backend = FileSystemTokenBackend(token_path=self.hass.config.path(), token_filename="ms_todo_token.txt")
-            self._account = Account(credentials, token_backend=token_backend, timezone=CONST_UTC_TIMEZONE)
+            
+            # Initialize the account and generate the authorization URL
+            from O365 import Account
+            self._account = Account(credentials, token_backend=token_backend)
+            self._auth_url, self._state = self._account.con.get_authorization_url(
+                requested_scopes=["Tasks.ReadWrite"],
+                redirect_uri=redirect_uri
+            )
 
-            if not self._account.is_authenticated:
-                # Generate OAuth2 authorization URL
-                self._callback_url = get_callback_url(self.hass)
-                scope = ["Tasks.ReadWrite"]
-                self._url, self._state = self._account.con.get_authorization_url(
-                    requested_scopes=scope, redirect_uri=self._callback_url
-                )
+            # Proceed to the authorization step
+            return await self.async_step_request()
 
-                return await self.async_step_request()
-
-            # If already authenticated, create the entry
-            return self.async_create_entry(title="Microsoft To Do", data=user_input)
-
-        # Display initial setup form
         data_schema = vol.Schema({
             vol.Required(CONF_CLIENT_ID): str,
             vol.Required(CONF_CLIENT_SECRET): str,
@@ -76,36 +60,43 @@ class MicrosoftToDoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            # Validate response
-            url = user_input[CONF_URL]
-            if "code" not in url:
+            # Validate the callback URL from user input
+            url = user_input.get(CONF_URL, "")
+            if "code" not in url or self._state not in url:
                 errors[CONF_URL] = "invalid_url"
                 return self.async_show_form(
                     step_id="request", errors=errors
                 )
 
             # Exchange the authorization code for a token
-            result = await self.hass.async_add_executor_job(
-                ft.partial(
-                    self._account.con.request_token,
-                    url,
-                    state=self._state,
-                    redirect_uri=self._callback_url
+            try:
+                result = await self.hass.async_add_executor_job(
+                    ft.partial(
+                        self._account.con.request_token,
+                        url,
+                        state=self._state,
+                        redirect_uri=self._callback_url
+                    )
                 )
-            )
 
-            if result is True:
-                return self.async_create_entry(title="Microsoft To Do", data={
-                    CONF_CLIENT_ID: self._client_id,
-                    CONF_CLIENT_SECRET: self._client_secret,
-                })
-            else:
+                if result is True:
+                    # Create the entry once authentication is successful
+                    return self.async_create_entry(title="Microsoft To Do", data={
+                        CONF_CLIENT_ID: self._client_id,
+                        CONF_CLIENT_SECRET: self._client_secret,
+                    })
+                else:
+                    errors[CONF_URL] = "token_error"
+
+            except Exception as e:
+                _LOGGER.error(f"Error requesting token: {e}")
                 errors[CONF_URL] = "token_error"
 
+        # Display authorization URL to the user
         return self.async_show_form(
             step_id="request",
             data_schema=vol.Schema({vol.Required(CONF_URL): str}),
-            description_placeholders={"auth_url": self._url},
+            description_placeholders={"auth_url": self._auth_url},
             errors=errors,
         )
 
