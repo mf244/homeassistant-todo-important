@@ -1,41 +1,29 @@
 {
-    "title": "Microsoft To Do Important Tasks",
-    "config": {
-      "step": {
-        "user": {
-          "title": "Microsoft To Do Setup",
-          "description": "Please enter your Microsoft Azure Client ID and Client Secret to proceed.",
-          "data": {
-            "client_id": "Client ID",
-            "client_secret": "Client Secret"
-          }
-        },
-        "auth": {
-          "title": "Authenticate Microsoft To Do",
-          "description": "Please authenticate by logging into your Microsoft account and pasting the returned URL here.",
-          "data": {
-            "returned_url": "Returned URL"
-          }
+  "title": "Microsoft To Do Important Tasks",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Microsoft To Do Setup",
+        "description": "Please enter your Microsoft Azure Client ID and Client Secret to proceed.",
+        "data": {
+          "client_id": "Client ID",
+          "client_secret": "Client Secret"
         }
       },
-      "error": {
-        "auth_failed": "Authentication failed. Please check your credentials and try again.",
-        "invalid_code": "The authorization code is invalid. Please try again."
+      "auth": {
+        "title": "Authenticate Microsoft To Do",
+        "description": "Click the link below to authenticate with your Microsoft account and return here to complete the setup."
       },
-      "abort": {
-        "already_configured": "This account is already configured."
+      "reauth": {
+        "title": "Reauthenticate Microsoft To Do",
+        "description": "Your authentication has expired. Please reauthenticate to continue."
       }
     },
-    "options": {
-      "step": {
-        "init": {
-          "title": "Microsoft To Do Options",
-          "description": "Configure the polling interval and other options for this integration.",
-          "data": {
-            "polling_interval": "Polling Interval (minutes)"
-          }
-        }
-      }
+    "error": {
+      "auth_failed": "Authentication failed. Please check your credentials and try again."
+    },
+    "abort": {
+      "already_configured": "This account is already configured."
     }
   }
-  
+}
